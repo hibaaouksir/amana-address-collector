@@ -40,3 +40,18 @@ class AdresseRead(SQLModel):
 class ColisWithAdresse(ColisRead):
     """Un colis avec son adresse collectee (si disponible)."""
     adresse: Optional[AdresseRead] = None
+
+# ===== Schemas pour Auth =====
+
+class UserRegister(SQLModel):
+    """Ce que l'employé envoie pour créer un compte."""
+    email: str
+    password: str
+    name: str
+
+
+class UserRead(SQLModel):
+    """Ce que l'API renvoie pour un utilisateur (jamais le mot de passe !)."""
+    id: int
+    email: str
+    name: str
