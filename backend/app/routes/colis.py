@@ -3,15 +3,20 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
 from app.database import get_session
-from app.models import Colis, Adresse
+from app.models import Colis, Adresse, User
 from app.schemas import ColisCreate, ColisRead, ColisWithAdresse
+from app.services.dependencies import get_current_user
 
 
 router = APIRouter(prefix="/colis", tags=["colis"])
 
 
 @router.post("", response_model=ColisRead, status_code=status.HTTP_201_CREATED)
-def create_colis(payload: ColisCreate, session: Session = Depends(get_session)):
+def create_colis(
+    payload: ColisCreate,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
     """Enregistre un nouveau colis. Le statut initial est en_attente."""
 
     existing = session.exec(
@@ -26,6 +31,7 @@ def create_colis(payload: ColisCreate, session: Session = Depends(get_session)):
     colis = Colis(
         code_barres=payload.code_barres,
         telephone=payload.telephone,
+        created_by_id=current_user.id,
     )
     session.add(colis)
     session.commit()

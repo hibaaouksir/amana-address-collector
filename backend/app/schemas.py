@@ -41,6 +41,17 @@ class ColisWithAdresse(ColisRead):
     """Un colis avec son adresse collectee (si disponible)."""
     adresse: Optional[AdresseRead] = None
 
+class UserLogin(SQLModel):
+    """Ce que l'employé envoie pour se connecter."""
+    email: str
+    password: str
+
+
+class TokenResponse(SQLModel):
+    """Ce que l'API renvoie après une connexion réussie."""
+    access_token: str
+    token_type: str = "bearer"
+    user: UserRead
 # ===== Schemas pour Auth =====
 
 class UserRegister(SQLModel):
