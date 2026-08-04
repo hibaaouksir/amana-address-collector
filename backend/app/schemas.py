@@ -1,0 +1,42 @@
+from datetime import datetime
+from typing import Optional
+from sqlmodel import SQLModel
+
+
+# ===== Schemas pour Colis =====
+
+class ColisCreate(SQLModel):
+    """Ce que l employe envoie pour creer un colis."""
+    code_barres: str
+    telephone: str
+
+
+class ColisRead(SQLModel):
+    """Ce que l API renvoie quand on lit un colis."""
+    id: int
+    code_barres: str
+    telephone: str
+    statut: str
+    sent_at: Optional[datetime] = None
+    reminder_sent_at: Optional[datetime] = None
+    created_at: datetime
+
+
+# ===== Schemas pour Adresse =====
+
+class AdresseRead(SQLModel):
+    """Adresse collectee pour un colis (lecture seule pour l instant)."""
+    id: int
+    colis_id: int
+    ligne1: Optional[str] = None
+    ville: Optional[str] = None
+    code_postal: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    source: str
+    extracted_at: datetime
+
+
+class ColisWithAdresse(ColisRead):
+    """Un colis avec son adresse collectee (si disponible)."""
+    adresse: Optional[AdresseRead] = None

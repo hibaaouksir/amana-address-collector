@@ -3,17 +3,16 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 
 from app.database import create_db_and_tables
-from app import models  # noqa: F401  -- necessaire pour enregistrer les modeles
+from app import models  # noqa: F401
+from app.routes import colis as colis_routes
 
 load_dotenv()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Au demarrage : creer les tables si elles n'existent pas
     create_db_and_tables()
     yield
-    # A l'arret : rien pour l'instant
 
 
 app = FastAPI(
@@ -22,6 +21,8 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+app.include_router(colis_routes.router)
 
 
 @app.get("/health")
