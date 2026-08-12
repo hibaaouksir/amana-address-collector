@@ -6,6 +6,7 @@ from app.database import get_session
 from app.models import Colis, Adresse, User
 from app.schemas import ColisCreate, ColisRead, ColisWithAdresse
 from app.services.dependencies import get_current_user
+from app.services.colis_service import create_colis_and_send_whatsapp
 
 
 router = APIRouter(prefix="/colis", tags=["colis"])
@@ -17,8 +18,15 @@ def create_colis(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
-    """Enregistre un nouveau colis. Le statut initial est en_attente."""
+    """Enregistre un nouveau colis ET envoie automatiquement une demande WhatsApp
+    au destinataire pour recuperer son adresse.
 
+    Statuts possibles apres cette route :
+    - envoye : colis cree et message WhatsApp envoye
+    - echec_envoi : colis cree mais envoi WhatsApp echoue
+    """
+
+    # Verifier l unicite du code-barres
     existing = session.exec(
         select(Colis).where(Colis.code_barres == payload.code_barres)
     ).first()
@@ -28,16 +36,19 @@ def create_colis(
             detail=f"Un colis avec le code-barres {payload.code_barres} existe deja",
         )
 
-    colis = Colis(
+    # Deleguer au service metier : cree + envoie WhatsApp
+    colis, whatsapp_result = create_colis_and_send_whatsapp(
+        session=session,
         code_barres=payload.code_barres,
         telephone=payload.telephone,
-        created_by_id=current_user.id,
+        created_by=current_user,
     )
-    session.add(colis)
-    session.commit()
-    session.refresh(colis)
-    return colis
 
+    # Logger le resultat pour debugging (sera visible dans les logs du serveur)
+    if not whatsapp_result.get("success"):
+        print(f"[COLIS {colis.id}] Envoi WhatsApp echoue : {whatsapp_result.get('error')}")
+
+    return colis
 
 @router.get("", response_model=List[ColisRead])
 def list_colis(session: Session = Depends(get_session)):

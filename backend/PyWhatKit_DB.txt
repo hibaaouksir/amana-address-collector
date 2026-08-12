@@ -1,0 +1,25 @@
+Date: 11/8/2026
+Time: 18:19
+Phone Number: +212701078990
+Message: Bonjour ! Ceci est un message de test envoye depuis l application Amana Address Collector. Si vous recevez ce message, l integration WhatsApp fonctionne correctement.
+--------------------
+Date: 11/8/2026
+Time: 18:21
+Phone Number: +212676890412
+Message: Bonjour ! Ceci est un message de test envoye depuis l application Amana Address Collector. Si vous recevez ce message, l integration WhatsApp fonctionne correctement.
+--------------------
+Date: 11/8/2026
+Time: 19:32
+Phone Number: +212676890412
+Message: Bonjour ! Nous avons un colis a vous livrer de la part d Amana - Barid Al-Maghrib. Pour organiser la livraison, merci de repondre a ce message en nous partageant votre adresse complete ou votre localisation.Merci.
+--------------------
+Date: 11/8/2026
+Time: 19:52
+Phone Number: +212676890412
+Message: Bonjour ! Ceci est un message de test envoye depuis l application Amana Address Collector. Si vous recevez ce message, l integration WhatsApp fonctionne correctement.
+--------------------
+Date: 11/8/2026
+Time: 20:9
+Phone Number: +212676890412
+Message: Bonjour ! Nous avons un colis a vous livrer de la part d Amana - Barid Al-Maghrib. Pour organiser la livraison, merci de repondre a ce message en nous partageant votre adresse complete ou votre localisation.Merci.
+--------------------

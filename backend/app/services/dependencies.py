@@ -7,18 +7,14 @@ from app.models import User
 from app.services.security import decode_access_token
 
 
-# OAuth2PasswordBearer indique a FastAPI ou trouver le token :
-# dans l en-tete Authorization: Bearer <token>
-# tokenUrl est utilise par Swagger pour son bouton Authorize
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     session: Session = Depends(get_session),
 ) -> User:
-    """Recupere l utilisateur courant a partir du token JWT.
-    Renvoie 401 si le token est absent, invalide, ou si l utilisateur n existe pas."""
+    """Recupere l utilisateur courant a partir du token JWT."""
 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
