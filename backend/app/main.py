@@ -6,6 +6,7 @@ from app.database import create_db_and_tables
 from app import models  # noqa: F401
 from app.routes import colis as colis_routes
 from app.routes import auth as auth_routes
+from app.routes import webhooks as webhooks_routes
 
 load_dotenv()
 
@@ -25,6 +26,7 @@ app = FastAPI(
 
 app.include_router(colis_routes.router)
 app.include_router(auth_routes.router)
+app.include_router(webhooks_routes.router)
 
 
 @app.get("/health")

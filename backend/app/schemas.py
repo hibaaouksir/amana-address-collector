@@ -66,3 +66,8 @@ class UserRead(SQLModel):
     id: int
     email: str
     name: str
+
+class WhatsAppReplySimulation(SQLModel):
+    """Simule une réponse WhatsApp reçue d'un destinataire."""
+    colis_id: int
+    message: str
