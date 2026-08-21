@@ -1,18 +1,63 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
+import NouveauColisPage from "./pages/NouveauColisPage";
+import DetailColisPage from "./pages/DetailColisPage";
+
+// Route protégée : redirige vers /login si non authentifié
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Chargement...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white p-10 rounded-lg shadow-lg text-center">
-        <h1 className="text-4xl font-bold text-blue-600 mb-4">
-          Amana Address Collector
-        </h1>
-        <p className="text-gray-700 text-lg mb-2">
-          Interface employé — collecte automatique d'adresses
-        </p>
-        <p className="text-sm text-gray-500">
-          Frontend React + TypeScript + TailwindCSS
-        </p>
-      </div>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/colis/nouveau"
+            element={
+              <ProtectedRoute>
+                <NouveauColisPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/colis/:id"
+            element={
+              <ProtectedRoute>
+                <DetailColisPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

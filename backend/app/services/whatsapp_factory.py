@@ -1,8 +1,10 @@
 """
 Factory pour instancier le bon WhatsAppSender selon la configuration.
 
-En dev/demo : WHATSAPP_PROVIDER=pywhatkit
-En production Barid : WHATSAPP_PROVIDER=meta
+Providers disponibles :
+- "mock"      : simulation (dev/demo, aucun envoi reel) [RECOMMANDE POUR DEV]
+- "pywhatkit" : envoi reel via WhatsApp Web (fragile, dev uniquement)
+- "meta"      : API officielle WhatsApp Business (production Barid)
 """
 import os
 from dotenv import load_dotenv
@@ -13,13 +15,8 @@ load_dotenv()
 
 
 def get_whatsapp_sender() -> WhatsAppSender:
-    """Retourne l instance WhatsAppSender configuree.
-
-    Utilise la variable d environnement WHATSAPP_PROVIDER :
-    - "pywhatkit" (defaut) : pour le dev/demo
-    - "meta" : pour la production avec l API officielle Meta
-    """
-    provider = os.getenv("WHATSAPP_PROVIDER", "pywhatkit").lower()
+    """Retourne l instance WhatsAppSender configuree via WHATSAPP_PROVIDER."""
+    provider = os.getenv("WHATSAPP_PROVIDER", "mock").lower()
 
     if provider == "meta":
         from app.services.meta_whatsapp_sender import MetaWhatsAppSender
@@ -27,7 +24,10 @@ def get_whatsapp_sender() -> WhatsAppSender:
     elif provider == "pywhatkit":
         from app.services.pywhatkit_sender import PywhatkitSender
         return PywhatkitSender()
+    elif provider == "mock":
+        from app.services.mock_whatsapp_sender import MockWhatsAppSender
+        return MockWhatsAppSender()
     else:
         raise ValueError(
-            f"WHATSAPP_PROVIDER={provider} inconnu. Valeurs valides : pywhatkit, meta"
+            f"WHATSAPP_PROVIDER={provider} inconnu. Valeurs valides : mock, pywhatkit, meta"
         )
