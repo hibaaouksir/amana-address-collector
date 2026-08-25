@@ -1,10 +1,9 @@
 /**
  * Service pour toutes les operations liees aux colis.
- * Encapsule les appels HTTP vers /colis, /colis/{id}, etc.
+ * Encapsule les appels HTTP vers /colis, /colis/{id}, /webhooks/whatsapp-reply, etc.
  */
 import { api } from "../lib/api";
 
-// Types partages avec le backend (miroir des schemas Pydantic)
 export interface Colis {
   id: number;
   code_barres: string;
@@ -46,5 +45,15 @@ export async function getColis(id: number): Promise<ColisWithAdresse> {
 // Cree un nouveau colis (declenche l envoi WhatsApp cote backend)
 export async function createColis(code_barres: string, telephone: string): Promise<Colis> {
   const response = await api.post<Colis>("/colis", { code_barres, telephone });
+  return response.data;
+}
+
+// Simule une reponse WhatsApp entrante (endpoint webhook du backend)
+// Le backend appelle l IA Gemini pour extraire l adresse structuree
+export async function simulateWhatsAppReply(colis_id: number, message: string): Promise<Adresse> {
+  const response = await api.post<Adresse>("/webhooks/whatsapp-reply", {
+    colis_id,
+    message,
+  });
   return response.data;
 }

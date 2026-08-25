@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { getColis, type ColisWithAdresse } from "../services/colisService";
+import { getColis, simulateWhatsAppReply, type ColisWithAdresse } from "../services/colisService";
 
 export default function DetailColisPage() {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +11,12 @@ export default function DetailColisPage() {
   const [colis, setColis] = useState<ColisWithAdresse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Etats pour le formulaire de simulation
+  const [simulatedMessage, setSimulatedMessage] = useState("");
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [simulationError, setSimulationError] = useState("");
+  const [simulationSuccess, setSimulationSuccess] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -31,6 +37,34 @@ export default function DetailColisPage() {
       }
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleSimulate(e: FormEvent) {
+    e.preventDefault();
+    if (!colis || !simulatedMessage.trim()) return;
+
+    setIsSimulating(true);
+    setSimulationError("");
+    setSimulationSuccess("");
+
+    try {
+      await simulateWhatsAppReply(colis.id, simulatedMessage);
+      setSimulationSuccess("Adresse extraite avec succes ! Rechargement en cours...");
+      setSimulatedMessage("");
+
+      // Recharger le colis pour afficher la nouvelle adresse
+      setTimeout(() => {
+        loadColis(colis.id);
+      }, 1500);
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        setSimulationError(`Colis introuvable`);
+      } else {
+        setSimulationError("Erreur lors de l analyse. Verifie que le backend tourne.");
+      }
+    } finally {
+      setIsSimulating(false);
     }
   }
 
@@ -124,6 +158,7 @@ export default function DetailColisPage() {
 
         {colis && !isLoading && (
           <div className="space-y-6">
+            {/* En-tete du colis */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-start justify-between">
                 <div>
@@ -136,6 +171,7 @@ export default function DetailColisPage() {
               </div>
             </div>
 
+            {/* Informations */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <div className="border-b border-gray-200 px-6 py-4">
                 <h3 className="text-lg font-semibold text-gray-900">Informations</h3>
@@ -168,17 +204,18 @@ export default function DetailColisPage() {
               </div>
             </div>
 
+            {/* Adresse extraite - SI DEJA EXISTANTE */}
             {colis.adresse ? (
               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div className="border-b border-gray-200 px-6 py-4 bg-green-50">
                   <div className="flex items-center gap-2">
-                    <span className="text-green-600 text-lg">OK</span>
+                    <span className="text-green-600 text-lg font-bold">OK</span>
                     <h3 className="text-lg font-semibold text-gray-900">
                       Adresse collectee par IA
                     </h3>
                   </div>
                   <p className="text-xs text-gray-600 mt-1">
-                    Source : {colis.adresse.source === "gps" ? "Position GPS partagee" : "Message texte analyse"} - Extraite le {formatDate(colis.adresse.extracted_at)}
+                    Source : {colis.adresse.source === "gps" ? "Position GPS partagee" : "Message texte analyse par Gemini"} - Extraite le {formatDate(colis.adresse.extracted_at)}
                   </p>
                 </div>
                 <div className="p-6 space-y-4">
@@ -221,12 +258,73 @@ export default function DetailColisPage() {
                 </div>
               </div>
             ) : (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-                <p className="text-yellow-800 font-medium mb-1">Adresse non encore recue</p>
-                <p className="text-sm text-yellow-700">
-                  Le destinataire n a pas encore repondu au message WhatsApp.
-                </p>
-              </div>
+              <>
+                {/* Message "En attente" */}
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                  <p className="text-yellow-800 font-medium mb-1">Adresse non encore recue</p>
+                  <p className="text-sm text-yellow-700">
+                    Le destinataire n a pas encore repondu au message WhatsApp.
+                  </p>
+                </div>
+
+                {/* FORMULAIRE DE SIMULATION */}
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <div className="border-b border-gray-200 px-6 py-4 bg-blue-50">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600 text-lg">AI</span>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        Simuler la reponse du destinataire
+                      </h3>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-1">
+                      Copiez ici la reponse recue via WhatsApp Business. L IA analysera le message et extraira l adresse automatiquement.
+                    </p>
+                  </div>
+                  <div className="p-6">
+                    <form onSubmit={handleSimulate} className="space-y-4">
+                      {simulationError && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                          {simulationError}
+                        </div>
+                      )}
+
+                      {simulationSuccess && (
+                        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+                          {simulationSuccess}
+                        </div>
+                      )}
+
+                      <div>
+                        <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                          Reponse du destinataire (texte, adresse, ou position GPS)
+                        </label>
+                        <textarea
+                          id="message"
+                          rows={4}
+                          value={simulatedMessage}
+                          onChange={(e) => setSimulatedMessage(e.target.value)}
+                          disabled={isSimulating}
+                          placeholder="Exemples : Rue Ibn Sina residence Al Andalous Agdal Rabat 10090&#10;salam ana f hay salam bloc 5&#10;Face a la mosquee verte Casablanca"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:bg-gray-100 font-mono text-sm"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          L IA comprend le francais, l arabe et la darija
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-3">
+                        <button
+                          type="submit"
+                          disabled={isSimulating || !simulatedMessage.trim()}
+                          className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium px-6 py-2.5 rounded-lg transition-colors"
+                        >
+                          {isSimulating ? "Analyse IA en cours..." : "Analyser et enregistrer l adresse"}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         )}

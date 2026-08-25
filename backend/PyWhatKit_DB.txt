@@ -23,3 +23,18 @@ Time: 20:9
 Phone Number: +212676890412
 Message: Bonjour ! Nous avons un colis a vous livrer de la part d Amana - Barid Al-Maghrib. Pour organiser la livraison, merci de repondre a ce message en nous partageant votre adresse complete ou votre localisation.Merci.
 --------------------
+Date: 21/8/2026
+Time: 7:0
+Phone Number: +212701078990
+Message: Bonjour ! Nous avons un colis a vous livrer de la part d Amana - Barid Al-Maghrib. Pour organiser la livraison, merci de repondre a ce message en nous partageant votre adresse complete ou votre localisation.Merci.
+--------------------
+Date: 21/8/2026
+Time: 7:1
+Phone Number: +212676890412
+Message: Bonjour ! Nous avons un colis a vous livrer de la part d Amana - Barid Al-Maghrib. Pour organiser la livraison, merci de repondre a ce message en nous partageant votre adresse complete ou votre localisation.Merci.
+--------------------
+Date: 21/8/2026
+Time: 7:3
+Phone Number: +212676890412
+Message: Bonjour ! Nous avons un colis a vous livrer de la part d Amana - Barid Al-Maghrib. Pour organiser la livraison, merci de repondre a ce message en nous partageant votre adresse complete ou votre localisation.Merci.
+--------------------
